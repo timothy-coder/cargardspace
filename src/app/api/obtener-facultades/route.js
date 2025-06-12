@@ -13,7 +13,7 @@ const connection = mysql.createConnection({
 export async function GET() {
   return new Promise((resolve, reject) => {
     // Realizar la consulta MySQL
-    connection.query('SELECT EF.Name FROM enrollment_faculties EF', (err, rows) => {
+    connection.query('SELECT EF.Name,EF.relationid FROM enrollment_faculties EF', (err, rows) => {
       if (err) {
         console.error('Error al obtener datos de MySQL:', err);
         reject(new NextResponse('Error al obtener datos de MySQL', { status: 500 }));

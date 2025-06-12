@@ -3,9 +3,15 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox'; // Usamos los checkboxes de Shadcn
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
 
-export default function FacultadesDialog({ open, onClose, facultadesExternas, selectedFacultades, handleCheckboxChange, handleSubmitFacultades }) {
+export default function FacultadesDialog({
+  open,
+  onClose,
+  facultadesExternas,
+  selectedFacultades,
+  handleCheckboxChange,
+  handleSubmitFacultades,
+}) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
@@ -15,10 +21,10 @@ export default function FacultadesDialog({ open, onClose, facultadesExternas, se
 
         <div className="space-y-4">
           {facultadesExternas.map((facultad) => (
-            <div key={facultad.id} className="flex items-center gap-2"> {/* Agregamos key={facultad.id} */}
+            <div key={facultad.relationid} className="flex items-center gap-2">  {/* Usamos 'relationid' como key */}
               <Checkbox
-                checked={selectedFacultades.includes(facultad.id)}
-                onCheckedChange={() => handleCheckboxChange(facultad.id)} // Cambiar estado cuando se haga clic
+                checked={selectedFacultades.includes(facultad.relationid)}  // Verifica si está seleccionado
+                onCheckedChange={() => handleCheckboxChange(facultad.relationid)}  // Llama a la función que maneja el cambio de estado
               />
               <label>{facultad.Name}</label>
             </div>
