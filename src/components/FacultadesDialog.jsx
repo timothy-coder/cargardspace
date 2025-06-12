@@ -15,7 +15,7 @@ export default function FacultadesDialog({ open, onClose, facultadesExternas, se
 
         <div className="space-y-4">
           {facultadesExternas.map((facultad) => (
-            <div key={facultad.id} className="flex items-center gap-2">
+            <div key={facultad.id} className="flex items-center gap-2"> {/* Agregamos key={facultad.id} */}
               <Checkbox
                 checked={selectedFacultades.includes(facultad.id)}
                 onCheckedChange={() => handleCheckboxChange(facultad.id)} // Cambiar estado cuando se haga clic

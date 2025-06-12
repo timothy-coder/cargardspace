@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useReactTable, getCoreRowModel, getFilteredRowModel, flexRender } from '@tanstack/react-table';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import FacultadesDialog from '@/components/FacultadesDialog'; // Importamos el nuevo componente de Dialog
 import { toast } from 'sonner';
 import { Plus, Trash2, Edit, Download } from 'lucide-react';
+import EditFacultadModal from '@/components/EditFacultadModal';
 
 export default function FacultadesPage() {
   const [data, setData] = useState([]);
@@ -67,9 +68,15 @@ export default function FacultadesPage() {
 
   // Cambiar la selección de un checkbox
   const handleCheckboxChange = (id) => {
-    setSelectedFacultades((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+    // Si el id está en la lista de seleccionados, lo eliminamos
+    setSelectedFacultades((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((item) => item !== id);
+      } else {
+        // Si no está en la lista, lo agregamos
+        return [...prev, id];
+      }
+    });
   };
 
   // Guardar las facultades seleccionadas
@@ -79,6 +86,7 @@ export default function FacultadesPage() {
       return;
     }
 
+    // Aquí puedes hacer un POST a tu backend para guardar las facultades seleccionadas
     const response = await fetch('/api/obtener-facultades', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
