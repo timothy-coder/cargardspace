@@ -1,18 +1,21 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useReactTable, getCoreRowModel, getFilteredRowModel, flexRender } from '@tanstack/react-table';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import EditFacultadModal from '@/components/EditFacultadModal';
+import FacultadesDialog from '@/components/FacultadesDialog'; // Importamos el nuevo componente de Dialog
 import { toast } from 'sonner';
 import { Plus, Trash2, Edit, Download } from 'lucide-react';
 
 export default function FacultadesPage() {
   const [data, setData] = useState([]);
+  const [facultadesExternas, setFacultadesExternas] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [obtenerOpen, setObtenerOpen] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [selectedFacultades, setSelectedFacultades] = useState([]); // Controla las facultades seleccionadas
   const [globalFilter, setGlobalFilter] = useState('');
 
   const fetchData = async () => {
@@ -49,8 +52,47 @@ export default function FacultadesPage() {
     }
   };
 
- const handleObtener = () => {
-    toast.info('Aquí se podría ejecutar una función personalizada de "obtener"');
+  // Obtener facultades externas desde la base de datos externa
+  const handleObtener = async () => {
+    const res = await fetch('/api/obtener-facultades');
+    const data = await res.json();
+
+    if (res.ok) {
+      setFacultadesExternas(data);
+      setObtenerOpen(true); // Abrimos el diálogo de facultades externas
+    } else {
+      toast.error('Error al obtener los datos');
+    }
+  };
+
+  // Cambiar la selección de un checkbox
+  const handleCheckboxChange = (id) => {
+    setSelectedFacultades((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  // Guardar las facultades seleccionadas
+  const handleSubmitFacultades = async () => {
+    if (selectedFacultades.length === 0) {
+      toast.warning('No se seleccionaron facultades');
+      return;
+    }
+
+    const response = await fetch('/api/obtener-facultades', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ selectedFacultades }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      toast.success('Facultades guardadas correctamente');
+      setObtenerOpen(false);
+    } else {
+      toast.error('Error al guardar');
+    }
   };
 
   const columns = useMemo(() => [
@@ -72,7 +114,6 @@ export default function FacultadesPage() {
           <Button size="sm" variant="destructive" onClick={() => handleDelete(row.original.id)}>
             <Trash2 className="w-4 h-4" />
           </Button>
-          
         </div>
       ),
     },
@@ -98,9 +139,10 @@ export default function FacultadesPage() {
           <Plus className="w-4 h-4 mr-2" />
           Agregar
         </Button>
-        <Button size="sm" variant="secondary" onClick={() => handleObtener()}>
-            <Download className="w-4 h-4" />Obtener
-          </Button>
+        <Button size="sm" variant="secondary" onClick={handleObtener}>
+          <Download className="w-4 h-4" />
+          Obtener
+        </Button>
       </div>
 
       <Input
@@ -108,6 +150,16 @@ export default function FacultadesPage() {
         value={globalFilter}
         onChange={(e) => setGlobalFilter(e.target.value)}
         className="mb-4 w-full max-w-md"
+      />
+
+      {/* Dialog para obtener facultades externas */}
+      <FacultadesDialog
+        open={obtenerOpen}
+        onClose={() => setObtenerOpen(false)}
+        facultadesExternas={facultadesExternas}
+        selectedFacultades={selectedFacultades}
+        handleCheckboxChange={handleCheckboxChange}
+        handleSubmitFacultades={handleSubmitFacultades}
       />
 
       <div className="border rounded-md overflow-auto">
