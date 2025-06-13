@@ -54,9 +54,6 @@ export default function OcdePage() {
     }
   };
 
-  const handleObtener = () => {
-    toast.info('Aquí se podría ejecutar una función personalizada de "obtener"');
-  };
 
   const columns = useMemo(() => [
     {
@@ -94,9 +91,7 @@ export default function OcdePage() {
           <Button size="sm" variant="destructive" onClick={() => handleDelete(row.original.id)}>
             <Trash2 className="w-4 h-4" />
           </Button>
-          <Button size="sm" variant="secondary" onClick={() => handleObtener(row.original)}>
-            <Download className="w-4 h-4" />
-          </Button>
+          
         </div>
       ),
     },
@@ -122,9 +117,7 @@ export default function OcdePage() {
           <Plus className="w-4 h-4 mr-2" />
           Agregar
         </Button>
-        <Button size="sm" variant="secondary" onClick={() => handleObtener()}>
-            <Download className="w-4 h-4" />Obtener
-          </Button>
+        
       </div>
 
       <Input

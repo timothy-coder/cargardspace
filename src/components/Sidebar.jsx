@@ -25,6 +25,7 @@ export default function Sidebar({ isOpen, onClose }) {
     { href: '/dashboard/usuarios', label: 'Usuarios', icon: <Users size={18} /> },
     { href: '/dashboard/facultades', label: 'Facultades', icon: <BookOpen size={18} /> },
     { href: '/dashboard/excel', label: 'Carga de Excel', icon: <Upload size={18} /> },
+    { href: '/dashboard/pdf', label: 'Carga de PDF', icon: <Upload size={18} /> },
     { href: '/dashboard/investigaciones', label: 'Investigaciones', icon: <BookOpen size={18} /> },
     { href: '/dashboard/autoridades', label: 'Autoridades', icon: <Settings size={18} /> },
     { href: '/dashboard/reportes', label: 'Reportes', icon: <FileText size={18} /> },

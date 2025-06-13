@@ -35,14 +35,14 @@ export default function EditOcdeModal({ open, onClose, onSubmit, ocde, facultade
         <div className="space-y-4">
           <Input
             name="ocde"
-            placeholder="Nombre OCDE"
+            placeholder="Código OCDE"
             value={form.ocde}
             onChange={handleChange}
           />
 
           <Input
             name="codigo"
-            placeholder="Código"
+            placeholder="Código  de Programa"
             type="number"
             value={form.codigo}
             onChange={handleChange}
