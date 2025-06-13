@@ -1,24 +1,24 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useReactTable, getCoreRowModel, getFilteredRowModel, flexRender } from '@tanstack/react-table';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import FacultadesDialog from '@/components/FacultadesDialog'; // Importamos el Dialog con checkboxes
 import { toast } from 'sonner';
 import { Plus, Trash2, Edit, Download } from 'lucide-react';
-import EditFacultadModal from '@/components/EditFacultadModal';
+import FacultadesDialog from '@/components/FacultadesDialog'; // Importamos el dialogo para facultades
+import EditFacultadModal from '@/components/EditFacultadModal'; // Importamos el modal para editar facultades
+
 export default function FacultadesPage() {
   const [data, setData] = useState([]);
-  const [facultadesExternas, setFacultadesExternas] = useState([]); // Facultades obtenidas
-  const [modalOpen, setModalOpen] = useState(false);
-  const [obtenerOpen, setObtenerOpen] = useState(false);
-  const [selected, setSelected] = useState(null);
+  const [facultadesExternas, setFacultadesExternas] = useState([]); // Facultades obtenidas desde la API
+  const [modalOpen, setModalOpen] = useState(false); // Estado para abrir el modal de edición
+  const [obtenerOpen, setObtenerOpen] = useState(false); // Estado para abrir el dialogo
+  const [selected, setSelected] = useState(null); // Facultad seleccionada para editar
   const [selectedFacultades, setSelectedFacultades] = useState([]); // Facultades seleccionadas
   const [globalFilter, setGlobalFilter] = useState('');
 
-  // Función para obtener los datos de facultades desde Supabase
   const fetchData = async () => {
     const { data, error } = await supabase.from('facultades').select('*').order('id');
     if (!error) setData(data);
@@ -29,7 +29,6 @@ export default function FacultadesPage() {
     fetchData();
   }, []);
 
-  // Función para guardar una facultad
   const handleSave = async (form) => {
     const { id, ...rest } = form;
     const result = id
@@ -45,7 +44,6 @@ export default function FacultadesPage() {
     setModalOpen(false);
   };
 
-  // Función para eliminar una facultad
   const handleDelete = async (id) => {
     const { error } = await supabase.from('facultades').delete().eq('id', id);
     if (error) toast.error('Error al eliminar');
@@ -55,65 +53,47 @@ export default function FacultadesPage() {
     }
   };
 
-  // Función para obtener facultades desde la base de datos externa
+  // Obtener facultades externas desde la base de datos externa
   const handleObtener = async () => {
     const res = await fetch('/api/obtener-facultades');
     const data = await res.json();
 
     if (res.ok) {
-      setFacultadesExternas(data);  // Guardamos las facultades obtenidas
-      setObtenerOpen(true);  // Abrimos el diálogo para mostrar las facultades
+      setFacultadesExternas(data);
+      setObtenerOpen(true);
     } else {
       toast.error('Error al obtener los datos');
     }
   };
 
-  // Cambiar la selección de un checkbox
- // Cambiar la selección de un checkbox
-const handleCheckboxChange = (id) => {
-  setSelectedFacultades((prev) => {
-    // Si el ID está en la lista, lo eliminamos (desmarcamos)
-    if (prev.includes(id)) {
-      return prev.filter((item) => item !== id);
+  const handleCheckboxChange = (id) => {
+    setSelectedFacultades((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleSubmitFacultades = async () => {
+    if (selectedFacultades.length === 0) {
+      toast.warning('No se seleccionaron facultades');
+      return;
     }
-    // Si no está en la lista, lo agregamos (marcamos)
-    return [...prev, id];
-  });
-};
 
+    const response = await fetch('/api/obtener-facultades', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ selectedFacultades }),
+    });
 
-  // Función para guardar las facultades seleccionadas
- const handleSubmitFacultades = async () => {
-  if (selectedFacultades.length === 0) {
-    toast.warning('No se seleccionaron facultades');
-    return;
-  }
+    const data = await response.json();
 
-  // Filtramos las facultades externas seleccionadas
-  const facultadesAInsertar = facultadesExternas.filter(facultad =>
-    selectedFacultades.includes(facultad.relationid)
-  ).map(facultad => ({
-    name: facultad.Name,  // Solo necesitamos el nombre
-  }));
+    if (response.ok) {
+      toast.success('Facultades guardadas correctamente');
+      setObtenerOpen(false);
+    } else {
+      toast.error('Error al guardar');
+    }
+  };
 
-  // Realizamos el upsert para guardar las facultades seleccionadas
-  const { data, error } = await supabase
-    .from('facultades')
-    .upsert(facultadesAInsertar, { onConflict: ['name'] });  // 'name' es el campo por el que gestionamos el conflicto
-
-  if (error) {
-    toast.error('Error al guardar las facultades');
-    console.error('Error:', error);
-  } else {
-    toast.success('Facultades guardadas correctamente');
-    setObtenerOpen(false);
-    fetchData();  // Refresca los datos
-  }
-};
-
-
-
-  // Configuración de columnas para la tabla
   const columns = useMemo(() => [
     {
       accessorKey: 'name',
@@ -149,7 +129,7 @@ const handleCheckboxChange = (id) => {
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-bold">Gestión de Facultades</h1>
         <Button onClick={() => {
           setSelected(null);
@@ -171,12 +151,13 @@ const handleCheckboxChange = (id) => {
         className="mb-4 w-full max-w-md"
       />
 
-      {/* Dialog para obtener facultades externas */}
+      {/* Dialog para mostrar y seleccionar las facultades */}
       <FacultadesDialog
         open={obtenerOpen}
         onClose={() => setObtenerOpen(false)}
-        facultadesExternas={facultadesExternas}
+        facultadesExternas={facultadesExternas}  // Solo mostrar las facultades no agregadas
         selectedFacultades={selectedFacultades}
+        setSelectedFacultades={setSelectedFacultades}  // Pasamos la función para actualizar el estado
         handleCheckboxChange={handleCheckboxChange}
         handleSubmitFacultades={handleSubmitFacultades}
       />
@@ -208,6 +189,7 @@ const handleCheckboxChange = (id) => {
         </table>
       </div>
 
+      {/* Modal para editar la facultad */}
       <EditFacultadModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
