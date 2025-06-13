@@ -11,6 +11,7 @@ export default function DocentesDialog({
   open,
   onClose,
   selectedDocentes,
+  handleCheckboxChange,
   setSelectedDocentes,
   handleSubmitDocentes,
 }) {
@@ -43,7 +44,7 @@ export default function DocentesDialog({
     const searchLowerCase = searchTerm.toLowerCase();
     
     return (
-      fullName.toLowerCase().includes(searchLowerCase) || docente.Dni.includes(searchLowerCase)
+      fullName.toLowerCase().includes(searchLowerCase) || docente.username.includes(searchLowerCase)
     );
   });
 
@@ -66,12 +67,12 @@ export default function DocentesDialog({
           {/* Contenedor de docentes con grid de 3 columnas */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
             {filteredDocentes.map((docente) => (
-              <div key={docente.relationid} className="flex items-center gap-2">
+              <div key={docente.username} className="flex items-center gap-2">
                 <Checkbox
-                  checked={selectedDocentes.includes(docente.relationid)}  // Verifica si está seleccionado
-                  onCheckedChange={() => handleCheckboxChange(docente.relationid)}  // Llama a la función que maneja el cambio de estado
+                  checked={selectedDocentes.includes(docente.username)}  // Verifica si está seleccionado
+                  onCheckedChange={() => handleCheckboxChange(docente.username)}  // Llama a la función que maneja el cambio de estado
                 />
-                <label>{`${docente.Name} ${docente.MaternalSurname} ${docente.PaternalSurname} - ${docente.Dni}`}</label>
+                <label>{`${docente.Name} ${docente.MaternalSurname} ${docente.PaternalSurname} - ${docente.username}`}</label>
               </div>
             ))}
           </div>
