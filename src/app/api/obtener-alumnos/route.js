@@ -8,7 +8,7 @@ export async function GET() {
     console.log('Conectando a la base de datos...');
     await connection.connect(); // Establece la conexión
 
-    const query = 'select au.username,au.`Name`,au.MaternalSurname,au.PaternalSurname FROM generals_teachers gt JOIN aspnetusers au ON gt.UserId=au.Id';  // Define tu consulta SQL
+    const query = "SELECT AU.NAME, AU.MaternalSurname, AU.PaternalSurname,AU.DNI FROM aspnetusers AU WHERE AU.TYPE='1' ";  // Define tu consulta SQL
     const [rows] = await connection.promise().query(query);  // Ejecuta la consulta
 
     console.log('Facultades obtenidas:', rows);  // Muestra en consola los resultados obtenidos
