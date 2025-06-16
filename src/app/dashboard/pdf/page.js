@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { saveAs } from 'file-saver';
 
-export default function ExcelPage() {
+export default function PdfPage() {
   const [formData, setFormData] = useState({
     titulo: '',
     dniAutor1: '',
